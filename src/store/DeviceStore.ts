@@ -13,30 +13,21 @@ type Device = {
 export default class DeviceStore {
     constructor() {
         // @ts-ignore
-        this._types = [
-            {id: 1, name: 'Холодильники'},
-            {id: 2, name: 'Смартфоны'},
-            {id: 3, name: 'Ноутбуки'},
-            {id: 4, name: 'Телевизоры'}
-        ];
+        this._types = [];
         // @ts-ignore
-        this._brands = [
-            {id: 1, name: 'Samsung'},
-            {id: 2, name: 'Apple'},
-            {id: 3, name: 'Lenovo'},
-            {id: 4, name: 'Asus'}
-        ];
+        this._brands = [];
         // @ts-ignore
-        this._devices = [
-            {id: 1, name: 'iPhone 12', price: 25000, rating: 5, img: 'https://www.apple.com/newsroom/images/product/iphone/standard/apple_iphone-12-spring21_purple_04202021_big.jpg.large.jpg'},
-            {id: 2, name: 'iPhone 12', price: 25000, rating: 5, img: 'https://www.apple.com/newsroom/images/product/iphone/standard/apple_iphone-12-spring21_purple_04202021_big.jpg.large.jpg'},
-            {id: 3, name: 'iPhone 12', price: 25000, rating: 5, img: 'https://www.apple.com/newsroom/images/product/iphone/standard/apple_iphone-12-spring21_purple_04202021_big.jpg.large.jpg'},
-            {id: 4, name: 'iPhone 12', price: 25000, rating: 5, img: 'https://www.apple.com/newsroom/images/product/iphone/standard/apple_iphone-12-spring21_purple_04202021_big.jpg.large.jpg'}
-        ];
+        this._devices = [];
         // @ts-ignore
         this._selectedType = {};
         // @ts-ignore
         this._selectedBrand = {};
+        // @ts-ignore
+        this._page = 1;
+        // @ts-ignore
+        this._totalCount = 0;
+        // @ts-ignore
+        this._limit = 3;
         makeAutoObservable(this)
     }
 
@@ -56,6 +47,7 @@ export default class DeviceStore {
     }
 
     setSelectedType(type: Type) {
+        this.setPage(1);
         // @ts-ignore
         this._selectedType = type;
     }
@@ -63,6 +55,21 @@ export default class DeviceStore {
     setSelectedBrand(brand: Brand) {
         // @ts-ignore
         this._selectedBrand = brand;
+    }
+
+    setPage(page: number) {
+        // @ts-ignore
+        this._page = page;
+    }
+
+    setTotalCount(count: number) {
+        // @ts-ignore
+        this._totalCount = count;
+    }
+
+    setLimit(limit: number) {
+        // @ts-ignore
+        this._limit = limit;
     }
 
     get types() {
@@ -88,5 +95,20 @@ export default class DeviceStore {
     get selectedBrand() {
         // @ts-ignore
         return this._selectedBrand
+    }
+
+    get page() {
+        // @ts-ignore
+        return this._page
+    }
+
+    get totalCount() {
+        // @ts-ignore
+        return this._totalCount
+    }
+
+    get limit() {
+        // @ts-ignore
+        return this._limit
     }
 }

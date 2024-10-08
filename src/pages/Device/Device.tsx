@@ -1,23 +1,25 @@
 import { Button, Image } from "react-bootstrap";
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import { fetchOneDevices } from "../../http/deviceApi";
 
 export const Device = () => {
-  const device =  {id: 1, name: 'iPhone 12', price: 25000, rating: 5, img: 'https://www.apple.com/newsroom/images/product/iphone/standard/apple_iphone-12-spring21_purple_04202021_big.jpg.large.jpg'};
-  const description = [
-    { id: 1, title: 'Оперативная память', description: '5 гб'},
-    { id: 2, title: 'Камера', description: '12 мп'},
-    { id: 3, title: 'Процессор', description: 'Пентиум 3'},
-    { id: 4, title: 'Количество ядер', description: '2'},
-    { id: 5, title: 'Аккумулятор', description: '4000'}
-  ]
+  const [device, setDevice] = useState({ info: [] });
+  const { id } = useParams();
+
+  useEffect(() => {
+    fetchOneDevices(id).then((data) => setDevice(data))
+  }, [id])
+
   return (
     <div>
-      <Image src={device.img} width={300} height={300} />
+      <Image src={import.meta.env.VITE_APP_URL + device.img || ''} width={300} height={300} />
       <div>{device.name}</div>
       <div>{device.price}</div>
 
       <h2>Характеристики</h2>
       <div>
-        { description.map((item) => {
+        { device.info.map((item: any) => {
           return <div key={item.id}>{item.title} : {item.description}</div>
         })}
       </div>

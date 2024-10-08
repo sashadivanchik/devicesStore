@@ -9,17 +9,18 @@ export const NavBar = observer(() => {
   // @ts-ignore
   const { user } = useContext(Context);
   const navigate = useNavigate();
-
-  const handleAuth = () => {
-    user.setIsAuth(true)
-  };
-
+  
   const toAdmin = () => {
     navigate(ADMIN_ROUTE)
   };
 
   const toLogin = () => {
     navigate(LOGIN_ROUTE)
+  };
+
+  const handleLogOut = () => {
+      user.setUser({})
+      user.setIsAuth(false)
   };
 
   return (
@@ -36,12 +37,12 @@ export const NavBar = observer(() => {
             user.isAuth ? (
               <>
                 <Button variant={'outline-light'} onClick={toAdmin}>Админ панель</Button>
-                <Button variant={'outline-light'} onClick={toLogin} className="ml-4">Выйти</Button>
+                <Button variant={'outline-light'} onClick={handleLogOut} className="ml-4">Выйти</Button>
                </>
             ) : (
               <Button
                 variant={'outline-light'}
-                onClick={handleAuth}
+                onClick={toLogin}
               >
                 Авторизация
               </Button>

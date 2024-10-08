@@ -1,8 +1,9 @@
 import { Button, Col, Dropdown, Form, Modal, Row } from "react-bootstrap";
 import { observer } from "mobx-react-lite";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Context } from "../../../main";
 import { CreateModalProps } from "../types";
+import { createDevice, fetchBrand, fetchTypes } from "../../../http/deviceApi";
 
 type DeviceCommonType = { id: number; name: string };
 
@@ -21,7 +22,15 @@ export const CreateDevice = observer(({
 }: CreateModalProps) => {
   // @ts-ignore
   const { device } = useContext(Context);
+  const [name, setName] = useState('');
+  const [price, setPrice] = useState(0);
+  const [file, setFile] = useState(null);
   const [info, setInfo] = useState<Info[]>([]);
+
+  useEffect(() => {
+    fetchTypes().then((data) => device.setTypes(data))
+    fetchBrand().then((data) => device.setBrands(data))
+  }, [])
 
   const setDeviceInfo = () => {
     setInfo([...info, { title: '', description: '', number: Date.now() }])
@@ -29,6 +38,27 @@ export const CreateDevice = observer(({
 
   const removeInfoItem = (number: number) => {
     setInfo(info.filter((item) => item.number !== number))
+  };
+
+  const selectFile = (e: any) => {
+    setFile(e.target.files[0])
+  };
+
+  // @ts-ignore
+  const changeInfo = (key: 'title' | "description", value, number) => {
+    setInfo(info.map((item) => item.number === number ? {...item, [key]: value} : item))
+  };
+
+  const addDevice = () => {
+    const formData = new FormData()
+    formData.append('name', name)
+    formData.append('price', `${price}`)
+    // @ts-ignore
+    formData.append('img', file)
+    formData.append('brandId', device.selectedBrand.id)
+    formData.append('typeId', device.selectedType.id)
+    formData.append('info', JSON.stringify(info))
+    createDevice(formData).then(() => onHide())
   };
 
   return (
@@ -49,22 +79,34 @@ export const CreateDevice = observer(({
         <Form>
           <Dropdown className='mt-2'>
             <Dropdown.Toggle>
-              Веберите тип
+              {device.selectedType.name || 'Выберите тип'}
             </Dropdown.Toggle>
             <Dropdown.Menu>
               {device.types.map((item: TypeDevices) => {
-                return <Dropdown.Item key={item.id}>{item.name}</Dropdown.Item>
+                return (
+                  <Dropdown.Item
+                    key={item.id}
+                    onClick={() => device.setSelectedType(item)}
+                  >
+                    {item.name}
+                  </Dropdown.Item>)
               })}
             </Dropdown.Menu>
           </Dropdown>
 
           <Dropdown className='mt-2'>
             <Dropdown.Toggle>
-              Веберите бренд
+              {device.selectedBrand.name || 'Выберите брэнд'}
             </Dropdown.Toggle>
             <Dropdown.Menu>
               {device.brands.map((item: BrandDevices) => {
-                return <Dropdown.Item key={item.id}>{item.name}</Dropdown.Item>
+                return (
+                  <Dropdown.Item
+                    key={item.id}
+                    onClick={() => device.setSelectedBrand(item)}
+                  >
+                    {item.name}
+                  </Dropdown.Item>)
               })}
             </Dropdown.Menu>
           </Dropdown>
@@ -72,17 +114,22 @@ export const CreateDevice = observer(({
           <Form.Control
             className='mt-2'
             placeholder='Введите название устройства'
+            value={name}
+            onChange={(e) => setName(e.target.value)}
           />
 
           <Form.Control
             className='mt-2'
             placeholder='Введите стоимость устройства'
             type='number'
+            value={price}
+            onChange={(e) => setPrice(Number(e.target.value))}
           />
 
           <Form.Control
             className='mt-2'
             type='file'
+            onChange={selectFile}
           />
 
           <hr/>
@@ -90,19 +137,23 @@ export const CreateDevice = observer(({
           <Button onClick={() => setDeviceInfo()}>Добавить новое свойство</Button>
 
           <div>
-            {  info.map((item) => {
+            {  info.map((item: { title: string; description: string; number: number}) => {
               return (
                 <Row className='mt-2' key={item.number}>
                   <Col>
                    <Form.Control
                     className='mt-2'
                     placeholder='Введите название свойства'
+                    value={item.title}
+                    onChange={(e) => changeInfo('title', e.target.value, item.number)}
                   />
                   </Col>
                   <Col>
                    <Form.Control
                       className='mt-2'
-                      placeholder='Введите значение свойства'
+                      placeholder='Введите описание устройства'
+                      value={item.description}
+                      onChange={(e) => changeInfo('description', e.target.value, item.number)}
                     />
                   </Col>
                   <Col>
@@ -118,7 +169,7 @@ export const CreateDevice = observer(({
 
       <Modal.Footer>
         <Button onClick={onHide}>Закрыть</Button>
-        <Button onClick={onHide}>Добавить</Button>
+        <Button onClick={addDevice}>Добавить</Button>
       </Modal.Footer>
     </Modal>
   );
